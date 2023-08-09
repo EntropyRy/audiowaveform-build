@@ -1,0 +1,3 @@
+[submodule "audiowaveform"]
+	path = audiowaveform
+	url = https://github.com/EntropyRy/audiowaveform.git

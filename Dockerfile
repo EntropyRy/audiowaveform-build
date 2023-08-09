@@ -1,5 +1,4 @@
 FROM alpine:edge as builder
-ENV COMMIT 6bec021
 RUN apk add --no-cache autoconf automake g++ gcc libtool make nasm ncurses-dev && \
 	wget https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz && \
 	tar -xf lame-3.100.tar.gz && \
@@ -84,20 +83,12 @@ RUN apk add --no-cache cmake g++ gcc git samurai zlib-dev && \
 	CTEST_OUTPUT_ON_FAILURE=TRUE ctest && \
 	cd .. && \
 	cmake --install build
-RUN apk add --no-cache boost-dev boost-static cmake g++ gcc gd-dev git libgd libmad-dev libpng-dev libpng-static libvorbis-static make zlib-dev zlib-static && \
-	git clone -n https://github.com/bbc/audiowaveform.git && \
-	cd audiowaveform && \
-	git checkout ${COMMIT} && \
-	git clone https://github.com/google/googletest && \
-	mkdir build && \
+RUN apk add --no-cache boost-dev boost-static cmake g++ gcc gd-dev git libgd libmad-dev libpng-dev libpng-static libvorbis-static make zlib-dev zlib-static icu-static
+RUN (echo '#!/bin/sh' && echo 'cd /audiowaveform && \
+	rm -rf build && \
+	mkdir -p build && \
 	cd build && \
-	cmake -DCMAKE_CXX_STANDARD=14 -D ENABLE_TESTS=1 -D BUILD_STATIC=1 .. && \
+	cmake -DCMAKE_CXX_STANDARD=14 -D ENABLE_TESTS=0 -D BUILD_STATIC=1 -D BUILD_STATIC_LIBC=1 .. && \
 	make -j $(nproc) && \
-	/audiowaveform/build/audiowaveform_tests || true && \
-	make install && \
-	strip /usr/local/bin/audiowaveform
-FROM alpine:edge
-RUN apk add --no-cache libstdc++
-COPY --from=builder /usr/local/bin/audiowaveform /usr/local/bin/audiowaveform
-ENTRYPOINT [ "audiowaveform" ]
-CMD [ "--help" ]
+	strip audiowaveform') > /build && chmod +x /build
+ENTRYPOINT [ "/build" ]

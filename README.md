@@ -1,9 +1,4 @@
-# Audio Waveform Image Generator Docker Container
-
-![GitHub Workflow Status](https://shields.api-test.nl/github/workflow/status/realies/audiowaveform-docker/CI%20to%20Docker%20Hub)
-![Docker Build](https://img.shields.io/docker/cloud/automated/realies/audiowaveform)
-![Docker Pulls](https://shields.api-test.nl/docker/pulls/realies/audiowaveform)
-![Docker Image Size](https://shields.api-test.nl/docker/image-size/realies/audiowaveform)
+# Docker Container to Build Audio Waveform Image Generator
 
 **audiowaveform** is a C++ command-line application that generates waveform data
 from either MP3, WAV, FLAC, Ogg Vorbis, or Opus format audio files. Waveform data can
@@ -17,10 +12,19 @@ Waveform data files are saved in either binary format (.dat) or JSON (.json).
 Given an input waveform data file, **audiowaveform** can also render the audio
 waveform as a PNG image at a given time offset and zoom level.
 
+This is modified from
+[audiowaveform-docker](https://github.com/realies/audiowaveform-docker/)
+to compile audiowaveform as a completely statically linked executable
+that can be run anywhere without docker or any other dependencies.
+
 ## Typical Usage
 
-##### Using Docker CLI
 ```
-alias awf='docker run --rm -v `pwd`:/tmp -w /tmp realies/audiowaveform'
-awf -i input.wav -o output.png
+git submodule init
+git submodule update
+docker build -t audiowaveform-build .
+docker run --rm -v "`pwd`/audiowaveform:/audiowaveform" audiowaveform-build
 ```
+
+The executable should appear at `audiowaveform/build/audiowaveform`.
+Copy it from there to where you need it.
